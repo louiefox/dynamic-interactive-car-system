@@ -18,7 +18,8 @@
 ----------------------- Dynamic Interactive Car System -----------------------
 ------------------------------------------------------------------------------
 
-DICS = {}
+DICS = DICS or {}
+DICS.VEHICLECFG = DICS.VEHICLECFG or {}
 DICS.SERVER_TICK = 24
 
 local realm = {
@@ -28,28 +29,32 @@ local realm = {
 }
 
 local function prefixToRealm( sPrefix )
-    return sPrefix == "sv" and realm.SERVER or (sPrefix == "cl" and realm.CLIENT or realm.SHARED)
+    return sPrefix == "sv_" and realm.SERVER or (sPrefix == "cl_" and realm.CLIENT or realm.SHARED)
 end
 
-local function loadFile( sFilePath )
-    local iRealm = prefixToRealm( sFilePath )
+local function loadFile( sFilePath, sFile )
+    local iRealm = prefixToRealm( sFile[1] .. sFile[2] .. sFile[3] )
     if( SERVER ) then
         if( iRealm == realm.CLIENT or iRealm == realm.SHARED ) then
             AddCSLuaFile( sFilePath )
+            print( "[DICS] Sent " .. sFilePath .. " to client" )
         end
 
         if( iRealm == realm.SERVER or iRealm == realm.SHARED ) then
             include( sFilePath )
+            print( "[DICS] Included " .. sFilePath .. " on server" )
         end
     elseif( iRealm == realm.CLIENT or iRealm == realm.SHARED ) then
         include( sFilePath )
+        print( "[DICS] Included " .. sFilePath .. " on client" )
     end
 end
+
 
 local function loadFolder( sFolderPath )
     local tFiles, tDirectories = file.Find( sFolderPath .. "/*", "LUA" )
     for i = 1, #tFiles do
-        loadFile( sFolderPath .. "/" .. tFiles[i] )
+        loadFile( sFolderPath .. "/" .. tFiles[i], tFiles[i] )
     end
 
     if( #tDirectories < 1 ) then return end
@@ -59,11 +64,6 @@ local function loadFolder( sFolderPath )
     end
 end
 
+loadFolder( "dics/core" )
 loadFolder( "dics/damagesystem" )
 loadFolder( "dics/hud" )
-
-loadFile( "drive/drive_dics_vehicle.lua" )
-
-concommand.Add( "test_movecalss", function()
-    print( FrameTime(), 1 / FrameTime() )
-end )

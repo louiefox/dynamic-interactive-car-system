@@ -49,3 +49,8 @@ hook.Add( "EntityTakeDamage", "DICS.EntityTakeDamage.DamageSystem", function( en
 	-- 	ent:SV_DealDamageToWheel(nearestWheelID, totalDamage * 0.2 * SVMOD.CFG.Damage.WheelShotMultiplier)
 	-- end
 end )
+
+concommand.Add( "togglewheel", function( ply, cmd, args )
+    local entity = ply:GetEyeTrace().Entity
+    print( "HELLO", entity:IsDICSVehicle() )
+end )
