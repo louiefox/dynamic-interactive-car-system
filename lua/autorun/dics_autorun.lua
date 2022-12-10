@@ -19,6 +19,8 @@
 ------------------------------------------------------------------------------
 
 DICS = DICS or {}
+DICS.FUNC = {}
+DICS.CFG = {}
 DICS.VEHICLECFG = DICS.VEHICLECFG or {}
 DICS.SERVER_TICK = 24
 

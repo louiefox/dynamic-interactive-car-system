@@ -32,7 +32,6 @@ function ENT:StartTouch( entity )
 end
 
 -- function ENT:SpawnFunction( ply, tr, ClassName )
-
 -- 	if ( !tr.Hit ) then return end
 
 -- 	local SpawnPos = tr.HitPos + tr.HitNormal * 10
@@ -47,7 +46,6 @@ end
 -- 	ent:Activate()
 
 -- 	return ent
-
 -- end
 
 function ENT:OnRemove()

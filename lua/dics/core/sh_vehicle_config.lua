@@ -5,10 +5,14 @@ DICS.WHEEL = {
     RR = 3 -- Rear Right
 }
 
+DICS.CFG.NormalSuspension = 500
+DICS.CFG.BrokeSuspension = 499
+
 local WHEEL = DICS.WHEEL
 
 DICS.VEHICLECFG = {
     ["17raptor_cop_sgm"] = {
+        Suspension = 41,
         Wheel = {
             Bones = {
                 [WHEEL.FL] = "fl_wheel",
@@ -19,6 +23,7 @@ DICS.VEHICLECFG = {
         }
     },
     ["Jeep"] = {
+        Suspension = 30,
         Wheel = {
             Bones = {
                 [WHEEL.FL] = "Rig_Buggy.Wheel_FL_Rotate",
