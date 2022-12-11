@@ -1,17 +1,39 @@
 local VEHICLE = FindMetaTable( "Vehicle" )
 
-function VEHICLE:KillTyre( num )
-    local wheelCfg = DICS.VEHICLECFG[self:GetVehicleClass()].Wheel
+-- CORE --
+function VEHICLE:DamageCore( damage )
+    local healthTable = self.DICS.Health
+    if( healthTable.Core <= 0 ) then return end
 
-    self:ManipulateBoneScale( self:LookupBone( wheelCfg.Bones[num] ), Vector( 0, 0, 0 ) )
+    healthTable.Core = healthTable.Core - damage
 
-	self:SetSpringLength( num, 499 )
+	if( healthTable.Core <= 0 ) then
+		local vPoint = self:GetPos()
+		local effectdata = EffectData()
+		effectdata:SetStart(vPoint)
+		effectdata:SetOrigin(vPoint)
+		effectdata:SetScale(1)
+		effectdata:SetEntity( self )
+		util.Effect("Explosion", effectdata)
 
-    self:GetPhysicsObject():SetVelocity( self:GetPhysicsObject():GetVelocity() * 0.1 )
-	self:EmitSound( "weapons/pistol/pistol_fire3.wav", 150, 50 )
+        self:SetNW2Bool( "dicsCoreBroken", true )
+	end
 end
 
-function VEHICLE:KillTyre( num )
+-- WHEELS --
+function VEHICLE:DamageWheel( wheelNum, damage )
+    local wheelsHealthTable = self.DICS.Health.Wheels
+    local wheelHealth = wheelsHealthTable[wheelNum]
+    if( wheelHealth <= 0 ) then return end
+
+    wheelsHealthTable[wheelNum] = wheelHealth - damage
+
+    if( wheelsHealthTable[wheelNum] <= 0 ) then
+        self:KillWheel( wheelNum )
+    end
+end
+
+function VEHICLE:KillWheel( num )
     local wheelCfg = DICS.VEHICLECFG[self:GetVehicleClass()].Wheel
 
     self:ManipulateBoneScale( self:LookupBone( wheelCfg.Bones[num] ), Vector( 0, 0, 0 ) )
@@ -22,7 +44,7 @@ function VEHICLE:KillTyre( num )
 	self:EmitSound( "weapons/pistol/pistol_fire3.wav", 150, 50 )
 end
 
-function VEHICLE:RepairTyre( num )
+function VEHICLE:RepairWheel( num )
     local vehicleCfg = DICS.VEHICLECFG[self:GetVehicleClass()]
     local wheelCfg = vehicleCfg.Wheel
 
@@ -30,8 +52,21 @@ function VEHICLE:RepairTyre( num )
 	self:SetSpringLength( num, DICS.CFG.NormalSuspension + vehicleCfg.Suspension / 100 )
 end
 
+-- REPARING --
 function VEHICLE:RepairFull( num )
+    self.DICS.Health = {
+		Core = 100,
+		Wheels = {
+			[0] = 100,
+			[1] = 100,
+			[2] = 100,
+			[3] = 100
+		}
+	}
+
+    self:SetNW2Bool( "dicsCoreBroken", false )
+
     for i = 0, 3 do
-        self:RepairTyre( i )
+        self:RepairWheel( i )
     end
 end

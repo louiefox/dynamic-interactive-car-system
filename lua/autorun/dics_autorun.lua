@@ -22,6 +22,7 @@ DICS = DICS or {}
 DICS.FUNC = {}
 DICS.CFG = {}
 DICS.VEHICLECFG = DICS.VEHICLECFG or {}
+DICS.TEMP = DICS.TEMP or {}
 DICS.SERVER_TICK = 24
 
 local realm = {

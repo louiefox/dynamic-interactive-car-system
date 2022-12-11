@@ -25,8 +25,8 @@ function ENT:StartTouch( entity )
     if( not entity:IsDICSVehicle() or entity.IsVehicleDeadBruv ) then return end
     entity.IsVehicleDeadBruv = true
 
-    entity:KillTyre( 0 )
-    entity:KillTyre( 1 )
+    entity:KillWheel( 0 )
+    entity:KillWheel( 1 )
 
     self:Remove()
 end

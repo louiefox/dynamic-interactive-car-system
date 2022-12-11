@@ -54,6 +54,6 @@ properties.Add( "dicsdamage", {
 		if( !properties.CanBeTargeted( ent, ply ) ) then return end
 		if( !self:Filter( ent, ply ) ) then return end
 
-		ent:KillTyre( net.ReadUInt( 2 ) )
+		ent:KillWheel( net.ReadUInt( 2 ) )
 	end 
 })

@@ -1,4 +1,4 @@
-hook.Add( "EntityTakeDamage", "DICS.EntityTakeDamage.DamageSystem", function( ent, dmg )
+-- hook.Add( "EntityTakeDamage", "DICS.EntityTakeDamage.DamageSystem", function( ent, dmg )
 	-- if not SVMOD:IsVehicle(ent) or not ent:SV_IsDriverSeat() then
 	-- 	return
 	-- end
@@ -48,9 +48,60 @@ hook.Add( "EntityTakeDamage", "DICS.EntityTakeDamage.DamageSystem", function( en
 	-- 	ent:SV_SetHealth(ent:SV_GetHealth() - totalDamage * 0.8)
 	-- 	ent:SV_DealDamageToWheel(nearestWheelID, totalDamage * 0.2 * SVMOD.CFG.Damage.WheelShotMultiplier)
 	-- end
+-- end )
+
+hook.Add( "EntityTakeDamage", "DICS.EntityTakeDamage.DamageSystem", function( ent, dmg )
+	if( not ent:IsDICSVehicle() ) then return end
+
+	local damagePosition = dmg:GetDamagePosition()
+
+	local closestWheel, closestDistance = -1, -1
+	for i = 0, 3 do
+		local wheel = ent:GetWheel( i )
+		if( not IsValid( wheel ) ) then continue end
+
+		local distance = wheel:GetPos():DistToSqr( damagePosition )
+		if( closestDistance == -1 or distance < closestDistance ) then
+			closestWheel = i
+			closestDistance = distance
+		end
+	end
+
+	local damageAmount = dmg:GetDamage()
+	damageAmount = damageAmount <= 0.1 and (damageAmount * 10000) or damageAmount
+	
+	if( closestWheel != -1 and closestDistance <= 800 ) then
+		ent:DamageWheel( closestWheel, damageAmount )
+	else
+		ent:DamageCore( damageAmount )
+	end
 end )
 
-concommand.Add( "togglewheel", function( ply, cmd, args )
+local function intializeVehicleHealth( ent )
+	if( not ent:IsDICSVehicle() ) then return end
+
+	ent.DICS = {}
+	ent.DICS.Health = {
+		Core = 100,
+		Wheels = {
+			[0] = 100,
+			[1] = 100,
+			[2] = 100,
+			[3] = 100
+		}
+	}
+end
+
+hook.Add( "OnEntityCreated", "DICS.OnEntityCreated.HealthData", function( ent )
+	if( not ent:IsVehicle() ) then return end
+
+	timer.Simple( 0, function()
+		if( not IsValid( ent ) ) then return end
+		intializeVehicleHealth( ent )
+	end )
+end )
+
+concommand.Add( "testdics", function( ply, cmd, args )
     local entity = ply:GetEyeTrace().Entity
-    print( "HELLO", entity:IsDICSVehicle() )
+    PrintTable( entity.DICS )
 end )
